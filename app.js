@@ -194,7 +194,7 @@ function renderProposalTile(doc) {
     const tile = document.createElement("div");
     tile.className = "tile";
     tile.innerHTML = `
-        <button class="btn-tile-delete" data-id="${doc.id}" title="Delete pod">&times;</button>
+        ${isAdmin ? `<button class="btn-tile-delete" data-id="${doc.id}" title="Delete pod">&times;</button>` : ''}
         <div class="tile-avatar cat-${catIdx}"></div>
         <div class="tile-content">
             <div class="tile-title">${sanitize(data.activityTitle)}</div>
@@ -204,11 +204,13 @@ function renderProposalTile(doc) {
             </div>
         </div>
     `;
-    tile.querySelector(".btn-tile-delete").addEventListener("click", (e) => {
-        e.stopPropagation();
-        deletePodId = doc.id;
-        openModal(deleteConfirmModal);
-    });
+    if (isAdmin) {
+        tile.querySelector(".btn-tile-delete").addEventListener("click", (e) => {
+            e.stopPropagation();
+            deletePodId = doc.id;
+            openModal(deleteConfirmModal);
+        });
+    }
     tile.addEventListener("click", () => openPodDetail(doc.id, data, "proposal"));
     return tile;
 }
@@ -221,7 +223,7 @@ function renderActiveTile(doc) {
     const tile = document.createElement("div");
     tile.className = "tile";
     tile.innerHTML = `
-        <button class="btn-tile-delete" data-id="${doc.id}" title="Delete pod">&times;</button>
+        ${isAdmin ? `<button class="btn-tile-delete" data-id="${doc.id}" title="Delete pod">&times;</button>` : ''}
         <div class="tile-avatar cat-${catIdx}"></div>
         <div class="tile-content">
             <div class="tile-title">${sanitize(data.activityTitle)}</div>
@@ -233,11 +235,13 @@ function renderActiveTile(doc) {
             </div>
         </div>
     `;
-    tile.querySelector(".btn-tile-delete").addEventListener("click", (e) => {
-        e.stopPropagation();
-        deletePodId = doc.id;
-        openModal(deleteConfirmModal);
-    });
+    if (isAdmin) {
+        tile.querySelector(".btn-tile-delete").addEventListener("click", (e) => {
+            e.stopPropagation();
+            deletePodId = doc.id;
+            openModal(deleteConfirmModal);
+        });
+    }
     tile.addEventListener("click", () => openPodDetail(doc.id, data, "active"));
     return tile;
 }
