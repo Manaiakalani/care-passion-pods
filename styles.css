@@ -94,44 +94,155 @@ body::after {
     100% { opacity: 1; }
 }
 
-/* Flying rocket cat */
+/* Flying rocket cats */
 .flying-cat {
     position: fixed;
     z-index: 0;
     pointer-events: none;
-    animation: flyCat 30s linear infinite;
-    opacity: 0.12;
-    filter: drop-shadow(0 0 20px rgba(74, 159, 212, 0.4));
+    filter: drop-shadow(0 0 15px rgba(74, 159, 212, 0.3));
 }
 
 .flying-cat-img {
-    width: 180px;
     height: auto;
-    transform: rotate(30deg);
 }
 
-@keyframes flyCat {
-    0% {
-        bottom: -15%;
-        left: -10%;
-        opacity: 0;
-    }
-    5% {
-        opacity: 0.12;
-    }
-    50% {
-        bottom: 50%;
-        left: 50%;
-        opacity: 0.15;
-    }
-    95% {
-        opacity: 0.12;
-    }
-    100% {
-        bottom: 110%;
-        left: 110%;
-        opacity: 0;
-    }
+/* Cat 1: logo — bottom-left to top-right, slow */
+.flying-cat-1 {
+    animation: flyCat1 28s linear infinite;
+    opacity: 0.14;
+}
+.flying-cat-1 .flying-cat-img {
+    width: 150px;
+    transform: rotate(30deg);
+}
+@keyframes flyCat1 {
+    0%   { bottom: -10%; left: -8%; opacity: 0; }
+    3%   { opacity: 0.14; }
+    50%  { bottom: 55%; left: 55%; opacity: 0.16; }
+    97%  { opacity: 0.14; }
+    100% { bottom: 115%; left: 115%; opacity: 0; }
+}
+
+/* Cat 2: purple — top-right to bottom-left */
+.flying-cat-2 {
+    animation: flyCat2 20s linear infinite;
+    opacity: 0.12;
+}
+.flying-cat-2 .flying-cat-img {
+    width: 110px;
+    transform: rotate(-150deg) scaleX(-1);
+}
+@keyframes flyCat2 {
+    0%   { top: -8%; right: -8%; opacity: 0; }
+    3%   { opacity: 0.12; }
+    50%  { top: 50%; right: 55%; opacity: 0.14; }
+    97%  { opacity: 0.12; }
+    100% { top: 115%; right: 115%; opacity: 0; }
+}
+
+/* Cat 3: blue — left to right across middle, fast */
+.flying-cat-3 {
+    animation: flyCat3 16s linear infinite;
+    opacity: 0.13;
+}
+.flying-cat-3 .flying-cat-img {
+    width: 120px;
+    transform: rotate(15deg);
+}
+@keyframes flyCat3 {
+    0%   { top: 35%; left: -12%; opacity: 0; }
+    3%   { opacity: 0.13; }
+    50%  { top: 28%; left: 50%; opacity: 0.15; }
+    97%  { opacity: 0.13; }
+    100% { top: 22%; left: 115%; opacity: 0; }
+}
+
+/* Cat 4: green — bottom-right to top-left, slow big */
+.flying-cat-4 {
+    animation: flyCat4 34s linear infinite;
+    opacity: 0.1;
+}
+.flying-cat-4 .flying-cat-img {
+    width: 190px;
+    transform: rotate(-30deg) scaleX(-1);
+}
+@keyframes flyCat4 {
+    0%   { bottom: -12%; right: -8%; opacity: 0; }
+    3%   { opacity: 0.1; }
+    50%  { bottom: 50%; right: 50%; opacity: 0.12; }
+    97%  { opacity: 0.1; }
+    100% { bottom: 115%; right: 115%; opacity: 0; }
+}
+
+/* Cat 5: orange — top-left diagonal down-right, medium */
+.flying-cat-5 {
+    animation: flyCat5 22s linear infinite;
+    opacity: 0.12;
+}
+.flying-cat-5 .flying-cat-img {
+    width: 95px;
+    transform: rotate(50deg);
+}
+@keyframes flyCat5 {
+    0%   { top: -8%; left: 20%; opacity: 0; }
+    3%   { opacity: 0.12; }
+    50%  { top: 55%; left: 65%; opacity: 0.14; }
+    97%  { opacity: 0.12; }
+    100% { top: 115%; left: 110%; opacity: 0; }
+}
+
+/* Cat 6: blue — right to left across lower area */
+.flying-cat-6 {
+    animation: flyCat6 24s linear infinite;
+    animation-delay: 3s;
+    opacity: 0;
+}
+.flying-cat-6 .flying-cat-img {
+    width: 100px;
+    transform: rotate(-20deg) scaleX(-1);
+}
+@keyframes flyCat6 {
+    0%   { top: 65%; right: -10%; opacity: 0; }
+    3%   { opacity: 0.11; }
+    50%  { top: 55%; right: 50%; opacity: 0.13; }
+    97%  { opacity: 0.11; }
+    100% { top: 45%; right: 115%; opacity: 0; }
+}
+
+/* Cat 7: purple — small, fast, bottom to top */
+.flying-cat-7 {
+    animation: flyCat7 14s linear infinite;
+    animation-delay: 5s;
+    opacity: 0;
+}
+.flying-cat-7 .flying-cat-img {
+    width: 70px;
+    transform: rotate(10deg);
+}
+@keyframes flyCat7 {
+    0%   { bottom: -10%; left: 40%; opacity: 0; }
+    3%   { opacity: 0.1; }
+    50%  { bottom: 50%; left: 48%; opacity: 0.12; }
+    97%  { opacity: 0.1; }
+    100% { bottom: 115%; left: 55%; opacity: 0; }
+}
+
+/* Cat 8: logo — large, slow drift right to left upper */
+.flying-cat-8 {
+    animation: flyCat8 38s linear infinite;
+    animation-delay: 8s;
+    opacity: 0;
+}
+.flying-cat-8 .flying-cat-img {
+    width: 130px;
+    transform: rotate(-40deg) scaleX(-1);
+}
+@keyframes flyCat8 {
+    0%   { top: 15%; right: -10%; opacity: 0; }
+    3%   { opacity: 0.09; }
+    50%  { top: 25%; right: 50%; opacity: 0.11; }
+    97%  { opacity: 0.09; }
+    100% { top: 35%; right: 115%; opacity: 0; }
 }
 
 /* Ensure content sits above starfield */
@@ -309,17 +420,15 @@ body::after {
     height: 80px;
     min-width: 80px;
     border-radius: 12px;
-    background-image: url('cats.png');
-    background-size: 200% 200%;
-    image-rendering: pixelated;
-    mix-blend-mode: multiply;
-    background-color: var(--white);
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
 }
 
-.tile-avatar.cat-0 { background-position: 0% 0%; }
-.tile-avatar.cat-1 { background-position: 100% 0%; }
-.tile-avatar.cat-2 { background-position: 0% 100%; }
-.tile-avatar.cat-3 { background-position: 100% 100%; }
+.tile-avatar.cat-0 { background-image: url('cat-purple.png'); }
+.tile-avatar.cat-1 { background-image: url('cat-blue.png'); }
+.tile-avatar.cat-2 { background-image: url('cat-green.png'); }
+.tile-avatar.cat-3 { background-image: url('cat-orange.png'); }
 
 .tile-content {
     flex: 1;
@@ -659,113 +768,4 @@ body::after {
 
 /* ===========================
    Admin Mode
-   =========================== */
-.btn-exit-admin {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    padding: 12px 24px;
-    border: none;
-    border-radius: 24px;
-    background: #dc3545;
-    color: var(--white);
-    font-size: 0.9rem;
-    font-weight: 600;
-    cursor: pointer;
-    box-shadow: 0 4px 16px rgba(220, 53, 69, 0.3);
-    z-index: 150;
-    transition: all var(--transition);
-}
-
-.btn-exit-admin:hover {
-    background: #b02a37;
-    box-shadow: 0 6px 20px rgba(220, 53, 69, 0.4);
-}
-
-.btn-tile-delete {
-    display: none;
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    width: 28px;
-    height: 28px;
-    border: none;
-    border-radius: 50%;
-    background: #dc3545;
-    color: var(--white);
-    font-size: 1rem;
-    font-weight: 700;
-    cursor: pointer;
-    line-height: 1;
-    transition: all var(--transition);
-    z-index: 10;
-}
-
-.btn-tile-delete:hover {
-    background: #b02a37;
-    transform: scale(1.1);
-}
-
-body.admin-mode .btn-tile-delete {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.error-msg {
-    color: #dc3545;
-    font-size: 0.85rem;
-    margin-bottom: 12px;
-}
-
-.how-it-works-content {
-    background: var(--white);
-    border-radius: var(--radius);
-    padding: 40px;
-    box-shadow: var(--shadow);
-    color: var(--gray-dark);
-    font-size: 1.1rem;
-}
-
-/* ===========================
-   Responsive
-   =========================== */
-@media (max-width: 768px) {
-    .header {
-        flex-wrap: wrap;
-        height: auto;
-        padding: 12px 16px;
-        gap: 8px;
-    }
-
-    .header-left {
-        order: 1;
-    }
-
-    .header-right {
-        order: 2;
-    }
-
-    .nav-links {
-        order: 3;
-        width: 100%;
-        justify-content: center;
-    }
-
-    .page {
-        padding: 20px 16px;
-    }
-
-    .tiles-container {
-        grid-template-columns: 1fr;
-    }
-
-    .modal {
-        width: 95%;
-    }
-
-    .radio-group {
-        flex-direction: column;
-        gap: 10px;
-    }
-}
+ 
