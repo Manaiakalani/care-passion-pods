@@ -30,6 +30,12 @@
 body {
     font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
     background-color: var(--gray-lightest);
+    background-image: url('logo.png');
+    background-repeat: no-repeat;
+    background-position: center center;
+    background-size: 400px auto;
+    background-attachment: fixed;
+    background-blend-mode: soft-light;
     color: var(--gray-darkest);
     min-height: 100vh;
 }
@@ -653,3 +659,4 @@ body.admin-mode .btn-tile-delete {
         gap: 10px;
     }
 }
+
