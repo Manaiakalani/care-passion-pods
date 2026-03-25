@@ -69,6 +69,8 @@ let currentPodId = null;
 let currentPodStatus = null; // "proposal" or "active"
 let isAdmin = false;
 let deletePodId = null;
+let latestProposalDocs = [];
+let latestActiveDocs = [];
 
 // Admin DOM elements
 const adminLoginBtn = document.getElementById("adminLoginBtn");
@@ -254,47 +256,50 @@ function renderActiveTile(doc) {
 // ===========================
 // Real-time Listeners
 // ===========================
+function renderAllProposals() {
+    proposalsTiles.querySelectorAll(".tile").forEach(t => t.remove());
+    if (latestProposalDocs.length === 0) {
+        proposalsEmpty.style.display = "block";
+    } else {
+        proposalsEmpty.style.display = "none";
+        latestProposalDocs.forEach((doc) => {
+            proposalsTiles.appendChild(renderProposalTile(doc));
+        });
+    }
+}
+
+function renderAllActive() {
+    dashboardTiles.querySelectorAll(".tile").forEach(t => t.remove());
+    if (latestActiveDocs.length === 0) {
+        dashboardEmpty.style.display = "block";
+    } else {
+        dashboardEmpty.style.display = "none";
+        latestActiveDocs.forEach((doc) => {
+            dashboardTiles.appendChild(renderActiveTile(doc));
+        });
+    }
+}
+
 podsCollection
     .where("status", "==", "proposal")
     .onSnapshot((snapshot) => {
-        // Clear tiles but keep empty state element
-        proposalsTiles.querySelectorAll(".tile").forEach(t => t.remove());
-
-        if (snapshot.empty) {
-            proposalsEmpty.style.display = "block";
-        } else {
-            proposalsEmpty.style.display = "none";
-            // Sort newest first client-side
-            const docs = snapshot.docs.sort((a, b) => {
-                const aTime = a.data().createdAt?.toMillis() || 0;
-                const bTime = b.data().createdAt?.toMillis() || 0;
-                return bTime - aTime;
-            });
-            docs.forEach((doc) => {
-                proposalsTiles.appendChild(renderProposalTile(doc));
-            });
-        }
+        latestProposalDocs = snapshot.docs.sort((a, b) => {
+            const aTime = a.data().createdAt?.toMillis() || 0;
+            const bTime = b.data().createdAt?.toMillis() || 0;
+            return bTime - aTime;
+        });
+        renderAllProposals();
     });
 
 podsCollection
     .where("status", "==", "active")
     .onSnapshot((snapshot) => {
-        dashboardTiles.querySelectorAll(".tile").forEach(t => t.remove());
-
-        if (snapshot.empty) {
-            dashboardEmpty.style.display = "block";
-        } else {
-            dashboardEmpty.style.display = "none";
-            // Sort newest first client-side
-            const docs = snapshot.docs.sort((a, b) => {
-                const aTime = a.data().createdAt?.toMillis() || 0;
-                const bTime = b.data().createdAt?.toMillis() || 0;
-                return bTime - aTime;
-            });
-            docs.forEach((doc) => {
-                dashboardTiles.appendChild(renderActiveTile(doc));
-            });
-        }
+        latestActiveDocs = snapshot.docs.sort((a, b) => {
+            const aTime = a.data().createdAt?.toMillis() || 0;
+            const bTime = b.data().createdAt?.toMillis() || 0;
+            return bTime - aTime;
+        });
+        renderAllActive();
     });
 
 // ===========================
@@ -512,6 +517,9 @@ adminLoginSubmitBtn.addEventListener("click", () => {
         // Enable HIW editing
         hiwBox1.contentEditable = "true";
         hiwBox2.contentEditable = "true";
+        // Re-render tiles to show delete buttons
+        renderAllProposals();
+        renderAllActive();
         closeModalFn(adminLoginModal);
     } else {
         adminError.style.display = "block";
@@ -540,6 +548,9 @@ function exitAdmin() {
     document.body.classList.remove("admin-mode");
     exitAdminBtn.style.display = "none";
     adminLoginBtn.textContent = "Admin Log In";
+    // Re-render tiles to remove delete buttons
+    renderAllProposals();
+    renderAllActive();
 }
 
 exitAdminBtn.addEventListener("click", exitAdmin);
@@ -552,14 +563,3 @@ closeDeleteConfirmModal.addEventListener("click", () => {
     closeModalFn(deleteConfirmModal);
 });
 
-deleteCancelBtn.addEventListener("click", () => {
-    deletePodId = null;
-    closeModalFn(deleteConfirmModal);
-});
-
-deleteConfirmBtn.addEventListener("click", async () => {
-    if (!deletePodId) return;
-    await podsCollection.doc(deletePodId).delete();
-    deletePodId = null;
-    closeModalFn(deleteConfirmModal);
-});
