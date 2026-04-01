@@ -827,6 +827,22 @@ body.admin-mode .btn-tile-delete {
     margin-bottom: 12px;
 }
 
+.btn-delete {
+    padding: 10px 24px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: #dc3545;
+    color: var(--white);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition);
+}
+
+.btn-delete:hover {
+    background: #b02a37;
+}
+
 .how-it-works-content {
     background: #ffffff;
     border-radius: 16px;
@@ -947,42 +963,26 @@ body.admin-mode .hiw-edit-hint {
 /* ===========================
    Responsive
    =========================== */
-@media (max-width: 768px) {
-    .header {
-        flex-wrap: wrap;
-        height: auto;
-        padding: 12px 16px;
-        gap: 8px;
-    }
 
-    .header-left {
-        order: 1;
-    }
-
-    .header-right {
-        order: 2;
-    }
-
-    .nav-links {
-        order: 3;
-        width: 100%;
-        justify-content: center;
-    }
-
-    .page {
-        padding: 20px 16px;
-    }
-
-    .tiles-container {
-        grid-template-columns: 1fr;
-    }
-
-    .modal {
-        width: 95%;
-    }
-
-    .radio-group {
-        flex-direction: column;
-        gap: 10px;
-    }
+/* ===========================
+   Form Notice (Create Pod warning)
+   =========================== */
+.form-notice {
+    background: #fff8e1;
+    border: 1px solid #ffe082;
+    border-radius: var(--radius-sm);
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    font-size: 0.88rem;
+    color: #5d4037;
+    line-height: 1.5;
 }
+
+/* ===========================
+   Pod Approval Page
+   =========================== */
+.approval-section-heading {
+    color: var(--blue-light);
+    font-size: 1.15rem;
+    font-weight: 600;
+    margin-bottom: 16px;
