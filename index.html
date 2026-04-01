@@ -44,6 +44,7 @@
             <a href="#" class="nav-link active" data-page="dashboard">Activity Pods</a>
             <a href="#" class="nav-link" data-page="proposals">Pod Proposals</a>
             <a href="#" class="nav-link" data-page="howitworks">How does this work?</a>
+            <a href="#" class="nav-link nav-link-admin" data-page="approval" id="approvalNavLink" style="display:none;">Pod Approval</a>
         </nav>
         <div class="header-right">
             <button class="btn-create" id="createPodBtn">+ Create a Pod</button>
@@ -85,6 +86,9 @@
                 <button class="modal-close" id="closeCreateModal">&times;</button>
             </div>
             <form id="createPodForm" class="modal-body">
+                <div class="form-notice">
+                    <strong>📝 Please note:</strong> Enter your valid full name and provide a clear explanation of the activity and its details. Pod proposals that do not meet this criteria will not be approved.
+                </div>
                 <div class="form-group">
                     <label for="organizerName">1. Name</label>
                     <input type="text" id="organizerName" placeholder="Enter your name" required>
@@ -143,7 +147,7 @@
             </div>
             <div class="modal-body">
                 <div class="success-icon">✅</div>
-                <p>Thanks for the submission! Your pod will go to the <strong>Pod Proposals</strong> page. If you get a vote from one person (minimum), then the pod will be active for you to do! It will also be posted on the general dashboard for others to see and join in.</p>
+                <p>Thanks for the submission! Your pod has been sent to the admin for review. Once approved, it will appear on the <strong>Pod Proposals</strong> page where others can join. If you get a vote from one person (minimum), then the pod will be active for you to do! It will also be posted on the general dashboard for others to see and join in.</p>
                 <button class="btn-submit" id="successOkBtn">OK</button>
             </div>
         </div>
@@ -248,6 +252,27 @@
         </div>
     </div>
 
+    <!-- Pod Approval Page (Admin Only) -->
+    <main class="page" id="page-approval">
+        <div class="page-header">
+            <h2>Pod Approval</h2>
+        </div>
+        <h3 class="approval-section-heading">Pending Approval</h3>
+        <div class="tiles-container" id="approval-tiles">
+            <div class="empty-state" id="approval-empty">
+                <div class="empty-icon">📬</div>
+                <p>No pods are waiting for approval</p>
+            </div>
+        </div>
+        <h3 class="approval-section-heading approval-declined-heading">Declined</h3>
+        <div class="tiles-container" id="declined-tiles">
+            <div class="empty-state" id="declined-empty">
+                <div class="empty-icon">🚫</div>
+                <p>No declined pods</p>
+            </div>
+        </div>
+    </main>
+
     <!-- How Does This Work Page -->
     <main class="page" id="page-howitworks">
         <div class="page-header">
@@ -335,29 +360,4 @@
         </div>
     </div>
 
-    <!-- Delete Confirm Modal -->
-    <div class="modal-overlay" id="deleteConfirmModal">
-        <div class="modal modal-small">
-            <div class="modal-header">
-                <h3>Delete Pod</h3>
-                <button class="modal-close" id="closeDeleteConfirmModal">&times;</button>
-            </div>
-            <div class="modal-body">
-                <p>Are you sure you want to delete this pod? This cannot be undone.</p>
-                <div class="modal-footer" style="border:none;padding:16px 0 0;">
-                    <button class="btn-exit" id="deleteCancelBtn">Cancel</button>
-                    <button class="btn-delete" id="deleteConfirmBtn">Delete</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Exit Admin View Button (only visible in admin mode) -->
-    <button class="btn-exit-admin" id="exitAdminBtn" style="display:none;">Exit Admin View</button>
-
-    <!-- Firebase SDK (compat mode, loaded via CDN) -->
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
-    <script src="app.js"></script>
-</body>
-</html>
+    <!-- Approval Detail Modal (Admin reviews pending pod) -->
