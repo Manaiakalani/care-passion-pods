@@ -986,3 +986,111 @@ body.admin-mode .hiw-edit-hint {
     font-size: 1.15rem;
     font-weight: 600;
     margin-bottom: 16px;
+    text-shadow: 0 1px 4px rgba(0,0,0,0.3);
+}
+
+.approval-declined-heading {
+    margin-top: 40px;
+    color: var(--gray-medium);
+}
+
+.tile-pending {
+    background: #fff8e1;
+    color: #795548;
+    font-size: 0.78rem;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 16px;
+}
+
+.tile-declined {
+    opacity: 0.6;
+}
+
+.tile-declined-badge {
+    background: #fce4ec;
+    color: #c62828;
+    font-size: 0.78rem;
+    font-weight: 500;
+    padding: 4px 10px;
+    border-radius: 16px;
+}
+
+.btn-approve {
+    padding: 10px 24px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: #2e7d32;
+    color: var(--white);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition);
+}
+
+.btn-approve:hover {
+    background: #1b5e20;
+}
+
+.btn-decline {
+    padding: 10px 24px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: #dc3545;
+    color: var(--white);
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition);
+}
+
+.btn-decline:hover {
+    background: #b02a37;
+}
+
+.nav-link-admin {
+    border: 1px dashed rgba(74, 159, 212, 0.4);
+}
+
+/* ===========================
+   Responsive
+   =========================== */
+@media (max-width: 768px) {
+    .header {
+        flex-wrap: wrap;
+        height: auto;
+        padding: 12px 16px;
+        gap: 8px;
+    }
+
+    .header-left {
+        order: 1;
+    }
+
+    .header-right {
+        order: 2;
+    }
+
+    .nav-links {
+        order: 3;
+        width: 100%;
+        justify-content: center;
+    }
+
+    .page {
+        padding: 20px 16px;
+    }
+
+    .tiles-container {
+        grid-template-columns: 1fr;
+    }
+
+    .modal {
+        width: 95%;
+    }
+
+    .radio-group {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
