@@ -1,4 +1,4 @@
-# Care Passion Pods
+# Care Activity Pods
 
 A community platform for organizing and joining group activities ("pods"). Built with HTML, CSS, JavaScript, and Firebase Firestore.
 
