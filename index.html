@@ -361,3 +361,44 @@
     </div>
 
     <!-- Approval Detail Modal (Admin reviews pending pod) -->
+    <div class="modal-overlay" id="approvalDetailModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="approvalDetailTitle"></h3>
+                <button class="modal-close" id="closeApprovalDetailModal">&times;</button>
+            </div>
+            <div class="modal-body" id="approvalDetailBody">
+                <!-- Dynamically populated -->
+            </div>
+            <div class="modal-footer" id="approvalDetailFooter">
+                <!-- Approve / Decline / Close buttons -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Delete Confirm Modal -->
+    <div class="modal-overlay" id="deleteConfirmModal">
+        <div class="modal modal-small">
+            <div class="modal-header">
+                <h3>Delete Pod</h3>
+                <button class="modal-close" id="closeDeleteConfirmModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete this pod? This cannot be undone.</p>
+                <div class="modal-footer" style="border:none;padding:16px 0 0;">
+                    <button class="btn-exit" id="deleteCancelBtn">Cancel</button>
+                    <button class="btn-delete" id="deleteConfirmBtn">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Exit Admin View Button (only visible in admin mode) -->
+    <button class="btn-exit-admin" id="exitAdminBtn" style="display:none;">Exit Admin View</button>
+
+    <!-- Firebase SDK (compat mode, loaded via CDN) -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
