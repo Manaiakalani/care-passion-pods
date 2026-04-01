@@ -62,6 +62,18 @@ const dashboardEmpty = document.getElementById("dashboard-empty");
 const proposalsTiles = document.getElementById("proposals-tiles");
 const proposalsEmpty = document.getElementById("proposals-empty");
 
+// Pod Approval page DOM elements
+const approvalNavLink = document.getElementById("approvalNavLink");
+const approvalTiles = document.getElementById("approval-tiles");
+const approvalEmpty = document.getElementById("approval-empty");
+const declinedTiles = document.getElementById("declined-tiles");
+const declinedEmpty = document.getElementById("declined-empty");
+const approvalDetailModal = document.getElementById("approvalDetailModal");
+const closeApprovalDetailModal = document.getElementById("closeApprovalDetailModal");
+const approvalDetailTitle = document.getElementById("approvalDetailTitle");
+const approvalDetailBody = document.getElementById("approvalDetailBody");
+const approvalDetailFooter = document.getElementById("approvalDetailFooter");
+
 // ===========================
 // State
 // ===========================
@@ -71,6 +83,8 @@ let isAdmin = false;
 let deletePodId = null;
 let latestProposalDocs = [];
 let latestActiveDocs = [];
+let latestPendingDocs = [];
+let latestDeclinedDocs = [];
 
 // Admin DOM elements
 const adminLoginBtn = document.getElementById("adminLoginBtn");
@@ -161,7 +175,7 @@ createPodForm.addEventListener("submit", async (e) => {
         activityRequirements,
         moraleBudget,
         activityType,
-        status: "proposal",
+        status: "pending",
         members: [{ name: organizerName, role: "Organizer", joinedAt: new Date().toISOString() }],
         dateTime: null,
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -284,6 +298,143 @@ function renderAllActive() {
     }
 }
 
+function renderPendingTile(doc) {
+    const data = doc.data();
+    const catIdx = getCatIndex(doc.id);
+    const tile = document.createElement("div");
+    tile.className = "tile";
+    tile.innerHTML = `
+        <div class="tile-avatar cat-${catIdx}"></div>
+        <div class="tile-content">
+            <div class="tile-title">${sanitize(data.activityTitle)}</div>
+            <div class="tile-organizer">by ${sanitize(data.organizerName)}</div>
+            <div class="tile-meta">
+                <span class="tile-badge tile-pending">⏳ Pending</span>
+                <span class="tile-badge tile-type">${sanitize(data.activityType)}</span>
+            </div>
+        </div>
+    `;
+    tile.addEventListener("click", () => openApprovalDetail(doc.id, data, "pending"));
+    return tile;
+}
+
+function renderDeclinedTile(doc) {
+    const data = doc.data();
+    const catIdx = getCatIndex(doc.id);
+    const tile = document.createElement("div");
+    tile.className = "tile tile-declined";
+    tile.innerHTML = `
+        ${isAdmin ? `<button class="btn-tile-delete" data-id="${doc.id}" title="Delete pod">&times;</button>` : ''}
+        <div class="tile-avatar cat-${catIdx}"></div>
+        <div class="tile-content">
+            <div class="tile-title">${sanitize(data.activityTitle)}</div>
+            <div class="tile-organizer">by ${sanitize(data.organizerName)}</div>
+            <div class="tile-meta">
+                <span class="tile-badge tile-declined-badge">❌ Declined</span>
+                <span class="tile-badge tile-type">${sanitize(data.activityType)}</span>
+            </div>
+        </div>
+    `;
+    if (isAdmin) {
+        tile.querySelector(".btn-tile-delete").addEventListener("click", (e) => {
+            e.stopPropagation();
+            deletePodId = doc.id;
+            openModal(deleteConfirmModal);
+        });
+    }
+    tile.addEventListener("click", () => openApprovalDetail(doc.id, data, "declined"));
+    return tile;
+}
+
+function renderAllPending() {
+    approvalTiles.querySelectorAll(".tile").forEach(t => t.remove());
+    if (latestPendingDocs.length === 0) {
+        approvalEmpty.style.display = "block";
+    } else {
+        approvalEmpty.style.display = "none";
+        latestPendingDocs.forEach((doc) => {
+            approvalTiles.appendChild(renderPendingTile(doc));
+        });
+    }
+}
+
+function renderAllDeclined() {
+    declinedTiles.querySelectorAll(".tile").forEach(t => t.remove());
+    if (latestDeclinedDocs.length === 0) {
+        declinedEmpty.style.display = "block";
+    } else {
+        declinedEmpty.style.display = "none";
+        latestDeclinedDocs.forEach((doc) => {
+            declinedTiles.appendChild(renderDeclinedTile(doc));
+        });
+    }
+}
+
+// ===========================
+// Approval Detail View (Admin)
+// ===========================
+function openApprovalDetail(podId, data, status) {
+    approvalDetailTitle.textContent = data.activityTitle;
+
+    approvalDetailBody.innerHTML = `
+        <div class="detail-section">
+            <div class="detail-label">Organizer</div>
+            <div class="detail-value">${sanitize(data.organizerName)}</div>
+        </div>
+        <div class="detail-section">
+            <div class="detail-label">Location</div>
+            <div class="detail-value">${sanitize(data.location)}</div>
+        </div>
+        <div class="detail-section">
+            <div class="detail-label">Activity Type</div>
+            <div class="detail-value">${sanitize(data.activityType)}</div>
+        </div>
+        <div class="detail-section">
+            <div class="detail-label">Activity Description</div>
+            <div class="detail-value">${sanitize(data.activityDescription)}</div>
+        </div>
+        ${data.activityRequirements ? `<div class="detail-section">
+            <div class="detail-label">What's Needed</div>
+            <div class="detail-value">${sanitize(data.activityRequirements)}</div>
+        </div>` : ''}
+        ${data.moraleBudget ? `<div class="detail-section">
+            <div class="detail-label">Morale Budget Usage</div>
+            <div class="detail-value">${sanitize(data.moraleBudget)}</div>
+        </div>` : ''}
+    `;
+
+    if (status === "pending") {
+        approvalDetailFooter.innerHTML = `
+            <button class="btn-exit" id="approvalCloseBtn">Close</button>
+            <button class="btn-decline" id="approvalDeclineBtn">Decline</button>
+            <button class="btn-approve" id="approvalApproveBtn">Approve</button>
+        `;
+        document.getElementById("approvalCloseBtn").addEventListener("click", () => {
+            closeModalFn(approvalDetailModal);
+        });
+        document.getElementById("approvalDeclineBtn").addEventListener("click", async () => {
+            await podsCollection.doc(podId).update({ status: "declined" });
+            closeModalFn(approvalDetailModal);
+        });
+        document.getElementById("approvalApproveBtn").addEventListener("click", async () => {
+            await podsCollection.doc(podId).update({ status: "proposal" });
+            closeModalFn(approvalDetailModal);
+        });
+    } else {
+        // Declined — view only
+        approvalDetailFooter.innerHTML = `
+            <button class="btn-exit" id="approvalCloseBtn">Close</button>
+        `;
+        document.getElementById("approvalCloseBtn").addEventListener("click", () => {
+            closeModalFn(approvalDetailModal);
+        });
+    }
+
+    openModal(approvalDetailModal);
+}
+
+closeApprovalDetailModal.addEventListener("click", () => closeModalFn(approvalDetailModal));
+
 podsCollection
     .where("status", "==", "proposal")
     .onSnapshot((snapshot) => {
@@ -304,6 +455,28 @@ podsCollection
             return bTime - aTime;
         });
         renderAllActive();
+    });
+
+podsCollection
+    .where("status", "==", "pending")
+    .onSnapshot((snapshot) => {
+        latestPendingDocs = snapshot.docs.sort((a, b) => {
+            const aTime = a.data().createdAt?.toMillis() || 0;
+            const bTime = b.data().createdAt?.toMillis() || 0;
+            return bTime - aTime;
+        });
+        renderAllPending();
+    });
+
+podsCollection
+    .where("status", "==", "declined")
+    .onSnapshot((snapshot) => {
+        latestDeclinedDocs = snapshot.docs.sort((a, b) => {
+            const aTime = a.data().createdAt?.toMillis() || 0;
+            const bTime = b.data().createdAt?.toMillis() || 0;
+            return bTime - aTime;
+        });
+        renderAllDeclined();
     });
 
 // ===========================
@@ -525,13 +698,14 @@ adminLoginSubmitBtn.addEventListener("click", () => {
         isAdmin = true;
         document.body.classList.add("admin-mode");
         exitAdminBtn.style.display = "block";
-        adminLoginBtn.textContent = "Admin ✓";
-        // Enable HIW editing
+        adminLoginBtn.textContent = "Admin ✓";        approvalNavLink.style.display = "";        // Enable HIW editing
         hiwBox1.contentEditable = "true";
         hiwBox2.contentEditable = "true";
         // Re-render tiles to show delete buttons
         renderAllProposals();
         renderAllActive();
+        renderAllPending();
+        renderAllDeclined();
         closeModalFn(adminLoginModal);
     } else {
         adminError.style.display = "block";
@@ -560,9 +734,16 @@ function exitAdmin() {
     document.body.classList.remove("admin-mode");
     exitAdminBtn.style.display = "none";
     adminLoginBtn.textContent = "Admin Log In";
+    approvalNavLink.style.display = "none";
+    // If on approval page, navigate away
+    if (document.getElementById("page-approval").classList.contains("active")) {
+        navigateTo("dashboard");
+    }
     // Re-render tiles to remove delete buttons
     renderAllProposals();
     renderAllActive();
+    renderAllPending();
+    renderAllDeclined();
 }
 
 exitAdminBtn.addEventListener("click", exitAdmin);
