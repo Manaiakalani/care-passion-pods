@@ -155,8 +155,8 @@
         const imgIdx = Math.floor(Math.random() * catImages.length);
         // Depth: 0 = far away, 1 = close
         const depth = Math.random();
-        const size = depth * 80 + 50; // 50-130px (far=small, close=big)
-        const alpha = depth * 0.4 + 0.45; // 0.45-0.85 (far=moderate, close=bright)
+        const size = depth * 120 + 80; // 80-200px (far=smaller, close=huge)
+        const alpha = 1.0; // fully visible
         const speed = depth * 0.4 + 0.1; // far=slow, close=fast
 
         // Random edge: 0=left, 1=right, 2=top, 3=bottom
