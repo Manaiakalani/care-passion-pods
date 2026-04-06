@@ -160,9 +160,10 @@ createPodForm.addEventListener("submit", async (e) => {
     const location = document.getElementById("location").value.trim();
     const activityTitle = document.getElementById("activityTitle").value.trim();
     const activityDescription = document.getElementById("activityDescription").value.trim();
+    const moraleMoney = document.getElementById("moraleMoney").value.trim();
     const activityType = document.querySelector('input[name="activityType"]:checked')?.value;
 
-    if (!organizerName || !location || !activityTitle || !activityDescription || !activityType) {
+    if (!organizerName || !location || !activityTitle || !activityDescription || !moraleMoney || !activityType) {
         return;
     }
 
@@ -171,6 +172,7 @@ createPodForm.addEventListener("submit", async (e) => {
         location,
         activityTitle,
         activityDescription,
+        moraleMoney,
         activityType,
         status: "pending",
         votes: [],
@@ -365,8 +367,12 @@ function openPodDetail(podId, data, status) {
             <div class="detail-value">${sanitize(data.activityType)}</div>
         </div>
         <div class="detail-section">
-            <div class="detail-label">Description & Requirements</div>
+            <div class="detail-label">Description</div>
             <div class="detail-value">${sanitize(data.activityDescription)}</div>
+        </div>
+        <div class="detail-section">
+            <div class="detail-label">Morale Money</div>
+            <div class="detail-value">${sanitize(data.moraleMoney || '')}</div>
         </div>
         ${dateSection}
         ${membersHTML}
@@ -674,6 +680,10 @@ function renderReviewTile(doc) {
             <div class="detail-section">
                 <div class="detail-label">Description</div>
                 <div class="detail-value">${sanitize(data.activityDescription)}</div>
+            </div>
+            <div class="detail-section">
+                <div class="detail-label">Morale Money</div>
+                <div class="detail-value">${sanitize(data.moraleMoney || '')}</div>
             </div>
             <div class="review-actions">
                 <button class="btn-approve" data-id="${doc.id}">Approve</button>
