@@ -542,35 +542,6 @@ body {
 }
 
 /* ===========================
-   Vote Checkmarks
-   =========================== */
-.vote-checks {
-    display: flex;
-    gap: 6px;
-    margin-top: 10px;
-}
-
-.vote-check {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 26px;
-    height: 26px;
-    border-radius: 50%;
-    border: 2px solid var(--gray-light);
-    font-size: 0.8rem;
-    font-weight: 700;
-    color: var(--gray-light);
-    transition: all var(--transition);
-}
-
-.vote-check.filled {
-    background: var(--blue-accent);
-    border-color: var(--blue-accent);
-    color: var(--white);
-}
-
-/* ===========================
    Admin Mode
    =========================== */
 .btn-exit-admin {
@@ -636,8 +607,74 @@ body.admin-mode .btn-tile-delete {
     border-radius: var(--radius);
     padding: 40px;
     box-shadow: var(--shadow);
-    color: var(--gray-medium);
+    color: var(--gray-darkest);
     font-size: 1.1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.admin-textbox-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.admin-textbox-label {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--gray-darkest);
+}
+
+.admin-textbox-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.admin-textbox {
+    width: 100%;
+    min-height: 80px;
+    padding: 14px 16px;
+    border: 1px solid var(--gray-light);
+    border-radius: var(--radius-sm);
+    font-size: 0.95rem;
+    font-family: inherit;
+    color: var(--gray-darkest);
+    background: var(--gray-lightest);
+    resize: none;
+    overflow: hidden;
+    line-height: 1.6;
+    transition: border-color var(--transition), background var(--transition);
+}
+
+.admin-textbox:not([readonly]) {
+    background: var(--white);
+    border-color: var(--blue-accent);
+    box-shadow: 0 0 0 3px rgba(74, 159, 212, 0.15);
+}
+
+.admin-textbox:focus {
+    outline: none;
+    border-color: var(--blue-accent);
+    box-shadow: 0 0 0 3px rgba(74, 159, 212, 0.15);
+}
+
+.btn-save-textbox {
+    align-self: flex-end;
+    padding: 8px 24px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: var(--blue-accent);
+    color: var(--white);
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all var(--transition);
+}
+
+.btn-save-textbox:hover {
+    background: var(--blue-dark);
 }
 
 /* ===========================
