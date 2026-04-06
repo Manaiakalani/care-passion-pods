@@ -94,6 +94,8 @@ navLinks.forEach(link => {
     link.addEventListener("click", (e) => {
         e.preventDefault();
         const targetPage = link.dataset.page;
+        // Block non-admins from admin-only pages
+        if (targetPage === "adminreview" && !isAdmin) return;
         navLinks.forEach(l => l.classList.remove("active"));
         link.classList.add("active");
         pages.forEach(p => p.classList.remove("active"));
@@ -176,7 +178,7 @@ createPodForm.addEventListener("submit", async (e) => {
 closeSuccessModal.addEventListener("click", () => closeModalFn(successModal));
 successOkBtn.addEventListener("click", () => {
     closeModalFn(successModal);
-    navigateTo("proposals");
+    navigateTo("dashboard");
 });
 
 // ===========================
@@ -533,7 +535,7 @@ adminLoginSubmitBtn.addEventListener("click", () => {
         document.body.classList.add("admin-mode");
         exitAdminBtn.style.display = "block";
         adminLoginBtn.textContent = "Admin \u2713";
-        adminReviewNavLink.style.display = "";
+        if (adminReviewNavLink) adminReviewNavLink.style.display = "inline-block";
         enableAdminTextBoxes();
         closeModalFn(adminLoginModal);
     } else {
@@ -554,7 +556,7 @@ function exitAdmin() {
     document.body.classList.remove("admin-mode");
     exitAdminBtn.style.display = "none";
     adminLoginBtn.textContent = "Admin Log In";
-    adminReviewNavLink.style.display = "none";
+    if (adminReviewNavLink) adminReviewNavLink.style.display = "none";
     // If on admin review page, navigate away
     if (document.getElementById("page-adminreview").classList.contains("active")) {
         navigateTo("dashboard");
