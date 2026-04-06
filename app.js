@@ -13,11 +13,6 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 const podsCollection = db.collection("pods");
-const siteContentCollection = db.collection("siteContent");
-
-// HIW (How It Works) page content elements
-const hiwBox1 = document.getElementById("hiwBox1");
-const hiwBox2 = document.getElementById("hiwBox2");
 
 // ===========================
 // DOM Elements
@@ -53,6 +48,12 @@ const joinSuccessActiveModal = document.getElementById("joinSuccessActiveModal")
 const closeJoinSuccessActiveModal = document.getElementById("closeJoinSuccessActiveModal");
 const joinSuccessActiveOkBtn = document.getElementById("joinSuccessActiveOkBtn");
 
+const voteSuccessModal = document.getElementById("voteSuccessModal");
+const closeVoteSuccessModal = document.getElementById("closeVoteSuccessModal");
+const voteSuccessOkBtn = document.getElementById("voteSuccessOkBtn");
+const votesRemaining = document.getElementById("votesRemaining");
+const joinModalTitle = document.getElementById("joinModalTitle");
+
 const dateTimeModal = document.getElementById("dateTimeModal");
 const closeDateTimeModal = document.getElementById("closeDateTimeModal");
 const dateTimeSubmitBtn = document.getElementById("dateTimeSubmitBtn");
@@ -62,18 +63,6 @@ const dashboardEmpty = document.getElementById("dashboard-empty");
 const proposalsTiles = document.getElementById("proposals-tiles");
 const proposalsEmpty = document.getElementById("proposals-empty");
 
-// Pod Approval page DOM elements
-const approvalNavLink = document.getElementById("approvalNavLink");
-const approvalTiles = document.getElementById("approval-tiles");
-const approvalEmpty = document.getElementById("approval-empty");
-const declinedTiles = document.getElementById("declined-tiles");
-const declinedEmpty = document.getElementById("declined-empty");
-const approvalDetailModal = document.getElementById("approvalDetailModal");
-const closeApprovalDetailModal = document.getElementById("closeApprovalDetailModal");
-const approvalDetailTitle = document.getElementById("approvalDetailTitle");
-const approvalDetailBody = document.getElementById("approvalDetailBody");
-const approvalDetailFooter = document.getElementById("approvalDetailFooter");
-
 // ===========================
 // State
 // ===========================
@@ -81,10 +70,6 @@ let currentPodId = null;
 let currentPodStatus = null; // "proposal" or "active"
 let isAdmin = false;
 let deletePodId = null;
-let latestProposalDocs = [];
-let latestActiveDocs = [];
-let latestPendingDocs = [];
-let latestDeclinedDocs = [];
 
 // Admin DOM elements
 const adminLoginBtn = document.getElementById("adminLoginBtn");
@@ -159,11 +144,9 @@ createPodForm.addEventListener("submit", async (e) => {
     const location = document.getElementById("location").value.trim();
     const activityTitle = document.getElementById("activityTitle").value.trim();
     const activityDescription = document.getElementById("activityDescription").value.trim();
-    const activityRequirements = document.getElementById("activityRequirements").value.trim();
-    const moraleBudget = document.getElementById("moraleBudget").value.trim();
     const activityType = document.querySelector('input[name="activityType"]:checked')?.value;
 
-    if (!organizerName || !location || !activityTitle || !activityDescription || !activityRequirements || !moraleBudget || !activityType) {
+    if (!organizerName || !location || !activityTitle || !activityDescription || !activityType) {
         return;
     }
 
@@ -172,10 +155,9 @@ createPodForm.addEventListener("submit", async (e) => {
         location,
         activityTitle,
         activityDescription,
-        activityRequirements,
-        moraleBudget,
         activityType,
-        status: "pending",
+        status: "proposal",
+        votes: [],
         members: [{ name: organizerName, role: "Organizer", joinedAt: new Date().toISOString() }],
         dateTime: null,
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -216,10 +198,14 @@ function getCatIndex(docId) {
 function renderProposalTile(doc) {
     const data = doc.data();
     const catIdx = getCatIndex(doc.id);
+    const voteCount = data.votes ? data.votes.length : 0;
+    const checks = Array.from({ length: 3 }, (_, i) =>
+        `<span class="vote-check ${i < voteCount ? 'filled' : ''}">✓</span>`
+    ).join("");
     const tile = document.createElement("div");
     tile.className = "tile";
     tile.innerHTML = `
-        ${isAdmin ? `<button class="btn-tile-delete" data-id="${doc.id}" title="Delete pod">&times;</button>` : ''}
+        <button class="btn-tile-delete" data-id="${doc.id}" title="Delete pod">&times;</button>
         <div class="tile-avatar cat-${catIdx}"></div>
         <div class="tile-content">
             <div class="tile-title">${sanitize(data.activityTitle)}</div>
@@ -227,15 +213,14 @@ function renderProposalTile(doc) {
             <div class="tile-meta">
                 <span class="tile-badge tile-type">${sanitize(data.activityType)}</span>
             </div>
+            <div class="vote-checks">${checks}</div>
         </div>
     `;
-    if (isAdmin) {
-        tile.querySelector(".btn-tile-delete").addEventListener("click", (e) => {
-            e.stopPropagation();
-            deletePodId = doc.id;
-            openModal(deleteConfirmModal);
-        });
-    }
+    tile.querySelector(".btn-tile-delete").addEventListener("click", (e) => {
+        e.stopPropagation();
+        deletePodId = doc.id;
+        openModal(deleteConfirmModal);
+    });
     tile.addEventListener("click", () => openPodDetail(doc.id, data, "proposal"));
     return tile;
 }
@@ -248,7 +233,7 @@ function renderActiveTile(doc) {
     const tile = document.createElement("div");
     tile.className = "tile";
     tile.innerHTML = `
-        ${isAdmin ? `<button class="btn-tile-delete" data-id="${doc.id}" title="Delete pod">&times;</button>` : ''}
+        <button class="btn-tile-delete" data-id="${doc.id}" title="Delete pod">&times;</button>
         <div class="tile-avatar cat-${catIdx}"></div>
         <div class="tile-content">
             <div class="tile-title">${sanitize(data.activityTitle)}</div>
@@ -260,13 +245,11 @@ function renderActiveTile(doc) {
             </div>
         </div>
     `;
-    if (isAdmin) {
-        tile.querySelector(".btn-tile-delete").addEventListener("click", (e) => {
-            e.stopPropagation();
-            deletePodId = doc.id;
-            openModal(deleteConfirmModal);
-        });
-    }
+    tile.querySelector(".btn-tile-delete").addEventListener("click", (e) => {
+        e.stopPropagation();
+        deletePodId = doc.id;
+        openModal(deleteConfirmModal);
+    });
     tile.addEventListener("click", () => openPodDetail(doc.id, data, "active"));
     return tile;
 }
@@ -274,221 +257,48 @@ function renderActiveTile(doc) {
 // ===========================
 // Real-time Listeners
 // ===========================
-function renderAllProposals() {
-    proposalsTiles.querySelectorAll(".tile").forEach(t => t.remove());
-    if (latestProposalDocs.length === 0) {
-        proposalsEmpty.style.display = "block";
-    } else {
-        proposalsEmpty.style.display = "none";
-        latestProposalDocs.forEach((doc) => {
-            proposalsTiles.appendChild(renderProposalTile(doc));
-        });
-    }
-}
-
-function renderAllActive() {
-    dashboardTiles.querySelectorAll(".tile").forEach(t => t.remove());
-    if (latestActiveDocs.length === 0) {
-        dashboardEmpty.style.display = "block";
-    } else {
-        dashboardEmpty.style.display = "none";
-        latestActiveDocs.forEach((doc) => {
-            dashboardTiles.appendChild(renderActiveTile(doc));
-        });
-    }
-}
-
-function renderPendingTile(doc) {
-    const data = doc.data();
-    const catIdx = getCatIndex(doc.id);
-    const tile = document.createElement("div");
-    tile.className = "tile";
-    tile.innerHTML = `
-        <div class="tile-avatar cat-${catIdx}"></div>
-        <div class="tile-content">
-            <div class="tile-title">${sanitize(data.activityTitle)}</div>
-            <div class="tile-organizer">by ${sanitize(data.organizerName)}</div>
-            <div class="tile-meta">
-                <span class="tile-badge tile-pending">⏳ Pending</span>
-                <span class="tile-badge tile-type">${sanitize(data.activityType)}</span>
-            </div>
-        </div>
-    `;
-    tile.addEventListener("click", () => openApprovalDetail(doc.id, data, "pending"));
-    return tile;
-}
-
-function renderDeclinedTile(doc) {
-    const data = doc.data();
-    const catIdx = getCatIndex(doc.id);
-    const tile = document.createElement("div");
-    tile.className = "tile tile-declined";
-    tile.innerHTML = `
-        ${isAdmin ? `<button class="btn-tile-delete" data-id="${doc.id}" title="Delete pod">&times;</button>` : ''}
-        <div class="tile-avatar cat-${catIdx}"></div>
-        <div class="tile-content">
-            <div class="tile-title">${sanitize(data.activityTitle)}</div>
-            <div class="tile-organizer">by ${sanitize(data.organizerName)}</div>
-            <div class="tile-meta">
-                <span class="tile-badge tile-declined-badge">❌ Declined</span>
-                <span class="tile-badge tile-type">${sanitize(data.activityType)}</span>
-            </div>
-        </div>
-    `;
-    if (isAdmin) {
-        tile.querySelector(".btn-tile-delete").addEventListener("click", (e) => {
-            e.stopPropagation();
-            deletePodId = doc.id;
-            openModal(deleteConfirmModal);
-        });
-    }
-    tile.addEventListener("click", () => openApprovalDetail(doc.id, data, "declined"));
-    return tile;
-}
-
-function renderAllPending() {
-    approvalTiles.querySelectorAll(".tile").forEach(t => t.remove());
-    if (latestPendingDocs.length === 0) {
-        approvalEmpty.style.display = "block";
-    } else {
-        approvalEmpty.style.display = "none";
-        latestPendingDocs.forEach((doc) => {
-            approvalTiles.appendChild(renderPendingTile(doc));
-        });
-    }
-}
-
-function renderAllDeclined() {
-    declinedTiles.querySelectorAll(".tile").forEach(t => t.remove());
-    if (latestDeclinedDocs.length === 0) {
-        declinedEmpty.style.display = "block";
-    } else {
-        declinedEmpty.style.display = "none";
-        latestDeclinedDocs.forEach((doc) => {
-            declinedTiles.appendChild(renderDeclinedTile(doc));
-        });
-    }
-}
-
-// ===========================
-// Approval Detail View (Admin)
-// ===========================
-function openApprovalDetail(podId, data, status) {
-    approvalDetailTitle.textContent = data.activityTitle;
-
-    approvalDetailBody.innerHTML = `
-        <div class="detail-section">
-            <div class="detail-label">Organizer</div>
-            <div class="detail-value">${sanitize(data.organizerName)}</div>
-        </div>
-        <div class="detail-section">
-            <div class="detail-label">Location</div>
-            <div class="detail-value">${sanitize(data.location)}</div>
-        </div>
-        <div class="detail-section">
-            <div class="detail-label">Activity Type</div>
-            <div class="detail-value">${sanitize(data.activityType)}</div>
-        </div>
-        <div class="detail-section">
-            <div class="detail-label">Activity Description</div>
-            <div class="detail-value">${sanitize(data.activityDescription)}</div>
-        </div>
-        ${data.activityRequirements ? `<div class="detail-section">
-            <div class="detail-label">What's Needed</div>
-            <div class="detail-value">${sanitize(data.activityRequirements)}</div>
-        </div>` : ''}
-        ${data.moraleBudget ? `<div class="detail-section">
-            <div class="detail-label">Morale Budget Usage</div>
-            <div class="detail-value">${sanitize(data.moraleBudget)}</div>
-        </div>` : ''}
-    `;
-
-    if (status === "pending") {
-        approvalDetailFooter.innerHTML = `
-            <button class="btn-exit" id="approvalCloseBtn">Close</button>
-            <button class="btn-decline" id="approvalDeclineBtn">Decline</button>
-            <button class="btn-approve" id="approvalApproveBtn">Approve</button>
-        `;
-        document.getElementById("approvalCloseBtn").addEventListener("click", () => {
-            closeModalFn(approvalDetailModal);
-        });
-        document.getElementById("approvalDeclineBtn").addEventListener("click", async () => {
-            await podsCollection.doc(podId).update({ status: "declined" });
-            closeModalFn(approvalDetailModal);
-        });
-        document.getElementById("approvalApproveBtn").addEventListener("click", async () => {
-            await podsCollection.doc(podId).update({ status: "proposal" });
-            closeModalFn(approvalDetailModal);
-        });
-    } else {
-        // Declined — view only
-        approvalDetailFooter.innerHTML = `
-            <button class="btn-exit" id="approvalCloseBtn">Close</button>
-        `;
-        document.getElementById("approvalCloseBtn").addEventListener("click", () => {
-            closeModalFn(approvalDetailModal);
-        });
-    }
-
-    openModal(approvalDetailModal);
-}
-
-closeApprovalDetailModal.addEventListener("click", () => closeModalFn(approvalDetailModal));
-
 podsCollection
     .where("status", "==", "proposal")
     .onSnapshot((snapshot) => {
-        latestProposalDocs = snapshot.docs.sort((a, b) => {
-            const aTime = a.data().createdAt?.toMillis() || 0;
-            const bTime = b.data().createdAt?.toMillis() || 0;
-            return bTime - aTime;
-        });
-        renderAllProposals();
+        // Clear tiles but keep empty state element
+        proposalsTiles.querySelectorAll(".tile").forEach(t => t.remove());
+
+        if (snapshot.empty) {
+            proposalsEmpty.style.display = "block";
+        } else {
+            proposalsEmpty.style.display = "none";
+            // Sort newest first client-side
+            const docs = snapshot.docs.sort((a, b) => {
+                const aTime = a.data().createdAt?.toMillis() || 0;
+                const bTime = b.data().createdAt?.toMillis() || 0;
+                return bTime - aTime;
+            });
+            docs.forEach((doc) => {
+                proposalsTiles.appendChild(renderProposalTile(doc));
+            });
+        }
     });
 
 podsCollection
     .where("status", "==", "active")
     .onSnapshot((snapshot) => {
-        latestActiveDocs = snapshot.docs.sort((a, b) => {
-            const aTime = a.data().createdAt?.toMillis() || 0;
-            const bTime = b.data().createdAt?.toMillis() || 0;
-            return bTime - aTime;
-        });
-        renderAllActive();
-    });
+        dashboardTiles.querySelectorAll(".tile").forEach(t => t.remove());
 
-podsCollection
-    .where("status", "==", "pending")
-    .onSnapshot((snapshot) => {
-        latestPendingDocs = snapshot.docs.sort((a, b) => {
-            const aTime = a.data().createdAt?.toMillis() || 0;
-            const bTime = b.data().createdAt?.toMillis() || 0;
-            return bTime - aTime;
-        });
-        renderAllPending();
+        if (snapshot.empty) {
+            dashboardEmpty.style.display = "block";
+        } else {
+            dashboardEmpty.style.display = "none";
+            // Sort newest first client-side
+            const docs = snapshot.docs.sort((a, b) => {
+                const aTime = a.data().createdAt?.toMillis() || 0;
+                const bTime = b.data().createdAt?.toMillis() || 0;
+                return bTime - aTime;
+            });
+            docs.forEach((doc) => {
+                dashboardTiles.appendChild(renderActiveTile(doc));
+            });
+        }
     });
-
-podsCollection
-    .where("status", "==", "declined")
-    .onSnapshot((snapshot) => {
-        latestDeclinedDocs = snapshot.docs.sort((a, b) => {
-            const aTime = a.data().createdAt?.toMillis() || 0;
-            const bTime = b.data().createdAt?.toMillis() || 0;
-            return bTime - aTime;
-        });
-        renderAllDeclined();
-    });
-
-// ===========================
-// Load How It Works Content from Firestore
-// ===========================
-siteContentCollection.doc("howitworks").onSnapshot((doc) => {
-    if (doc.exists) {
-        const data = doc.data();
-        if (data.box1) hiwBox1.innerHTML = data.box1;
-        if (data.box2) hiwBox2.innerHTML = data.box2;
-    }
-});
 
 // ===========================
 // Pod Detail View
@@ -539,24 +349,16 @@ function openPodDetail(podId, data, status) {
             <div class="detail-value">${sanitize(data.activityType)}</div>
         </div>
         <div class="detail-section">
-            <div class="detail-label">Activity Description</div>
+            <div class="detail-label">Description & Requirements</div>
             <div class="detail-value">${sanitize(data.activityDescription)}</div>
         </div>
-        ${data.activityRequirements ? `<div class="detail-section">
-            <div class="detail-label">What's Needed</div>
-            <div class="detail-value">${sanitize(data.activityRequirements)}</div>
-        </div>` : ''}
-        ${data.moraleBudget ? `<div class="detail-section">
-            <div class="detail-label">Morale Budget Usage</div>
-            <div class="detail-value">${sanitize(data.moraleBudget)}</div>
-        </div>` : ''}
         ${dateSection}
         ${membersHTML}
     `;
 
     detailFooter.innerHTML = `
         <button class="btn-exit" id="detailExitBtn">Exit</button>
-        <button class="btn-join" id="detailJoinBtn">Join</button>
+        <button class="btn-join" id="detailJoinBtn">${status === "proposal" ? "Vote" : "Join"}</button>
     `;
 
     // Wire up footer buttons
@@ -567,6 +369,13 @@ function openPodDetail(podId, data, status) {
     document.getElementById("detailJoinBtn").addEventListener("click", () => {
         closeModalFn(podDetailModal);
         joinNameInput.value = "";
+        if (status === "proposal") {
+            joinModalTitle.textContent = "Vote for this Pod";
+            joinSubmitBtn.textContent = "Vote";
+        } else {
+            joinModalTitle.textContent = "Join this Pod";
+            joinSubmitBtn.textContent = "Join";
+        }
         openModal(joinModal);
     });
 
@@ -599,17 +408,35 @@ joinSubmitBtn.addEventListener("click", async () => {
     const podRef = podsCollection.doc(currentPodId);
 
     if (currentPodStatus === "proposal") {
-        // First joiner — activate the pod
-        await podRef.update({
-            status: "active",
-            members: firebase.firestore.FieldValue.arrayUnion({
-                name: name,
+        // Add vote to proposal
+        const podSnap = await podRef.get();
+        const podData = podSnap.data();
+        const currentVotes = podData.votes || [];
+        const newVotes = [...currentVotes, { name: name, votedAt: new Date().toISOString() }];
+
+        if (newVotes.length >= 3) {
+            // 3 votes reached — activate the pod and add all voters as members
+            const newMembers = newVotes.map(v => ({
+                name: v.name,
                 role: "Member",
-                joinedAt: new Date().toISOString()
-            })
-        });
-        closeModalFn(joinModal);
-        openModal(joinSuccessProposalModal);
+                joinedAt: v.votedAt
+            }));
+            await podRef.update({
+                status: "active",
+                votes: newVotes,
+                members: firebase.firestore.FieldValue.arrayUnion(...newMembers)
+            });
+            closeModalFn(joinModal);
+            openModal(joinSuccessProposalModal);
+        } else {
+            // Vote counted but not enough yet
+            await podRef.update({
+                votes: newVotes
+            });
+            votesRemaining.textContent = (3 - newVotes.length);
+            closeModalFn(joinModal);
+            openModal(voteSuccessModal);
+        }
     } else {
         // Already active — just add member
         await podRef.update({
@@ -633,6 +460,10 @@ joinSuccessProposalOkBtn.addEventListener("click", () => {
     closeModalFn(joinSuccessProposalModal);
     navigateTo("dashboard");
 });
+
+// Vote success (vote counted, not yet active)
+closeVoteSuccessModal.addEventListener("click", () => closeModalFn(voteSuccessModal));
+voteSuccessOkBtn.addEventListener("click", () => closeModalFn(voteSuccessModal));
 
 // Join success (active -> joined)
 closeJoinSuccessActiveModal.addEventListener("click", () => {
@@ -698,14 +529,7 @@ adminLoginSubmitBtn.addEventListener("click", () => {
         isAdmin = true;
         document.body.classList.add("admin-mode");
         exitAdminBtn.style.display = "block";
-        adminLoginBtn.textContent = "Admin ✓";        approvalNavLink.style.display = "";        // Enable HIW editing
-        hiwBox1.contentEditable = "true";
-        hiwBox2.contentEditable = "true";
-        // Re-render tiles to show delete buttons
-        renderAllProposals();
-        renderAllActive();
-        renderAllPending();
-        renderAllDeclined();
+        adminLoginBtn.textContent = "Admin ✓";
         closeModalFn(adminLoginModal);
     } else {
         adminError.style.display = "block";
@@ -721,29 +545,10 @@ adminPassword.addEventListener("keydown", (e) => {
 });
 
 function exitAdmin() {
-    // Save HIW content to Firestore
-    siteContentCollection.doc("howitworks").set({
-        box1: hiwBox1.innerHTML,
-        box2: hiwBox2.innerHTML
-    });
-    // Disable HIW editing
-    hiwBox1.contentEditable = "false";
-    hiwBox2.contentEditable = "false";
-
     isAdmin = false;
     document.body.classList.remove("admin-mode");
     exitAdminBtn.style.display = "none";
     adminLoginBtn.textContent = "Admin Log In";
-    approvalNavLink.style.display = "none";
-    // If on approval page, navigate away
-    if (document.getElementById("page-approval").classList.contains("active")) {
-        navigateTo("dashboard");
-    }
-    // Re-render tiles to remove delete buttons
-    renderAllProposals();
-    renderAllActive();
-    renderAllPending();
-    renderAllDeclined();
 }
 
 exitAdminBtn.addEventListener("click", exitAdmin);
@@ -763,11 +568,7 @@ deleteCancelBtn.addEventListener("click", () => {
 
 deleteConfirmBtn.addEventListener("click", async () => {
     if (!deletePodId) return;
-    try {
-        await podsCollection.doc(deletePodId).delete();
-        deletePodId = null;
-        closeModalFn(deleteConfirmModal);
-    } catch (err) {
-        alert("Failed to delete pod: " + err.message);
-    }
+    await podsCollection.doc(deletePodId).delete();
+    deletePodId = null;
+    closeModalFn(deleteConfirmModal);
 });
