@@ -100,6 +100,7 @@ navLinks.forEach(link => {
         link.classList.add("active");
         pages.forEach(p => p.classList.remove("active"));
         document.getElementById("page-" + targetPage).classList.add("active");
+        if (targetPage === "howitworks") resizeHowItWorksBoxes();
     });
 });
 
@@ -110,6 +111,16 @@ function navigateTo(pageName) {
     });
     pages.forEach(p => p.classList.remove("active"));
     document.getElementById("page-" + pageName).classList.add("active");
+    if (pageName === "howitworks") resizeHowItWorksBoxes();
+}
+
+function resizeHowItWorksBoxes() {
+    requestAnimationFrame(() => {
+        const h = document.getElementById("howItWorksText");
+        const p = document.getElementById("podIdeasText");
+        if (h) { h.style.height = "auto"; h.style.height = Math.max(120, h.scrollHeight) + "px"; }
+        if (p) { p.style.height = "auto"; p.style.height = Math.max(120, p.scrollHeight) + "px"; }
+    });
 }
 
 // ===========================
@@ -608,8 +619,10 @@ settingsDoc.onSnapshot((doc) => {
 
 // Auto-resize textareas to fit content
 function autoResizeTextBox(el) {
+    // Only resize if element is visible (non-zero offsetParent)
+    if (!el.offsetParent) return;
     el.style.height = "auto";
-    el.style.height = el.scrollHeight + "px";
+    el.style.height = Math.max(120, el.scrollHeight) + "px";
 }
 
 howItWorksText.addEventListener("input", () => autoResizeTextBox(howItWorksText));
