@@ -529,8 +529,7 @@ adminLoginSubmitBtn.addEventListener("click", () => {
         isAdmin = true;
         document.body.classList.add("admin-mode");
         exitAdminBtn.style.display = "block";
-        adminLoginBtn.textContent = "Admin ✓";
-        closeModalFn(adminLoginModal);
+        adminLoginBtn.textContent = "Admin ✓";        enableAdminTextBoxes();        closeModalFn(adminLoginModal);
     } else {
         adminError.style.display = "block";
     }
@@ -549,6 +548,7 @@ function exitAdmin() {
     document.body.classList.remove("admin-mode");
     exitAdminBtn.style.display = "none";
     adminLoginBtn.textContent = "Admin Log In";
+    disableAdminTextBoxes();
 }
 
 exitAdminBtn.addEventListener("click", exitAdmin);
@@ -571,4 +571,55 @@ deleteConfirmBtn.addEventListener("click", async () => {
     await podsCollection.doc(deletePodId).delete();
     deletePodId = null;
     closeModalFn(deleteConfirmModal);
+});
+
+// ===========================
+// Admin Text Boxes (How It Works page)
+// ===========================
+const howItWorksText = document.getElementById("howItWorksText");
+const podIdeasText = document.getElementById("podIdeasText");
+const saveHowItWorks = document.getElementById("saveHowItWorks");
+const savePodIdeas = document.getElementById("savePodIdeas");
+const settingsDoc = db.collection("settings").doc("howItWorks");
+
+// Load content from Firestore
+settingsDoc.onSnapshot((doc) => {
+    if (doc.exists) {
+        const data = doc.data();
+        if (data.howItWorks != null) howItWorksText.value = data.howItWorks;
+        if (data.podIdeas != null) podIdeasText.value = data.podIdeas;
+    }
+    autoResizeTextBox(howItWorksText);
+    autoResizeTextBox(podIdeasText);
+});
+
+// Auto-resize textareas to fit content
+function autoResizeTextBox(el) {
+    el.style.height = "auto";
+    el.style.height = el.scrollHeight + "px";
+}
+
+howItWorksText.addEventListener("input", () => autoResizeTextBox(howItWorksText));
+podIdeasText.addEventListener("input", () => autoResizeTextBox(podIdeasText));
+
+function enableAdminTextBoxes() {
+    howItWorksText.removeAttribute("readonly");
+    podIdeasText.removeAttribute("readonly");
+    saveHowItWorks.style.display = "block";
+    savePodIdeas.style.display = "block";
+}
+
+function disableAdminTextBoxes() {
+    howItWorksText.setAttribute("readonly", true);
+    podIdeasText.setAttribute("readonly", true);
+    saveHowItWorks.style.display = "none";
+    savePodIdeas.style.display = "none";
+}
+
+saveHowItWorks.addEventListener("click", async () => {
+    await settingsDoc.set({ howItWorks: howItWorksText.value }, { merge: true });
+});
+
+savePodIdeas.addEventListener("click", async () => {
+    await settingsDoc.set({ podIdeas: podIdeasText.value }, { merge: true });
 });
