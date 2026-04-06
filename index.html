@@ -8,6 +8,19 @@
 </head>
 <body>
 
+    <!-- Space Background -->
+    <div class="space-bg">
+        <div class="stars">
+            <div class="stars-small"></div>
+            <div class="stars-medium"></div>
+            <div class="stars-large"></div>
+        </div>
+        <div class="floating-cat"></div>
+        <div class="floating-cat"></div>
+        <div class="floating-cat"></div>
+        <div class="floating-cat"></div>
+    </div>
+
     <!-- Navigation -->
     <header class="header">
         <div class="header-left">
@@ -18,6 +31,7 @@
             <a href="#" class="nav-link active" data-page="dashboard">Passion Pods</a>
             <a href="#" class="nav-link" data-page="proposals">Pod Proposals</a>
             <a href="#" class="nav-link" data-page="howitworks">How does this work?</a>
+            <a href="#" class="nav-link nav-link-admin" data-page="adminreview" style="display:none;">Admin Review</a>
         </nav>
         <div class="header-right">
             <button class="btn-create" id="createPodBtn">+ Create a Pod</button>
@@ -109,7 +123,7 @@
             </div>
             <div class="modal-body">
                 <div class="success-icon">✅</div>
-                <p>Thanks for the submission! Your pod will go to the <strong>Pod Proposals</strong> page. Once 3 people vote for it, the pod will become active and be posted on the Passion Pods dashboard for others to see and join in.</p>
+                <p>Thanks for the submission! Your pod has been sent for admin review. Once approved, it will appear on the <strong>Pod Proposals</strong> page where people can vote for it. Once 3 people vote for it, the pod will become active and be posted on the Passion Pods dashboard.</p>
                 <button class="btn-submit" id="successOkBtn">OK</button>
             </div>
         </div>
@@ -227,6 +241,19 @@
             </div>
         </div>
     </div>
+
+    <!-- Admin Review Page (admin only) -->
+    <main class="page" id="page-adminreview">
+        <div class="page-header">
+            <h2>Admin Review</h2>
+        </div>
+        <div class="tiles-container" id="review-tiles">
+            <div class="empty-state" id="review-empty">
+                <div class="empty-icon">📝</div>
+                <p>No pods pending review.</p>
+            </div>
+        </div>
+    </main>
 
     <!-- How Does This Work Page -->
     <main class="page" id="page-howitworks">
