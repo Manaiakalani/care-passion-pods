@@ -74,6 +74,24 @@ let currentPodStatus = null; // "proposal" or "active"
 let isAdmin = false;
 let deletePodId = null;
 
+// Alias lookup: maps uppercase alias -> full name
+let aliasMap = {};
+
+// Load aliases from Firestore
+db.collection("aliases").get().then((snapshot) => {
+    snapshot.forEach((doc) => {
+        const data = doc.data();
+        aliasMap[data.alias.toUpperCase()] = data.fullName;
+    });
+    console.log(`Loaded ${Object.keys(aliasMap).length} aliases`);
+});
+
+// Validate alias (case-insensitive), returns full name or null
+function resolveAlias(input) {
+    const key = input.trim().toUpperCase();
+    return aliasMap[key] || null;
+}
+
 // Admin DOM elements
 const adminLoginBtn = document.getElementById("adminLoginBtn");
 const adminLoginModal = document.getElementById("adminLoginModal");
@@ -163,19 +181,25 @@ closeCreateModal.addEventListener("click", () => closeModalFn(createModal));
 createPodForm.addEventListener("submit", async (e) => {
     e.preventDefault();
 
-    const organizerName = document.getElementById("organizerName").value.trim();
+    const aliasInput = document.getElementById("organizerName").value.trim();
     const location = document.getElementById("location").value.trim();
     const activityTitle = document.getElementById("activityTitle").value.trim();
     const activityDescription = document.getElementById("activityDescription").value.trim();
     const moraleMoney = document.getElementById("moraleMoney").value.trim();
     const activityType = document.querySelector('input[name="activityType"]:checked')?.value;
 
-    if (!organizerName || !location || !activityTitle || !activityDescription || !moraleMoney || !activityType) {
+    if (!aliasInput || !location || !activityTitle || !activityDescription || !moraleMoney || !activityType) {
+        return;
+    }
+
+    const fullName = resolveAlias(aliasInput);
+    if (!fullName) {
+        alert("Invalid alias");
         return;
     }
 
     const pod = {
-        organizerName,
+        organizerName: fullName,
         location,
         activityTitle,
         activityDescription,
@@ -183,7 +207,7 @@ createPodForm.addEventListener("submit", async (e) => {
         activityType,
         status: "pending",
         votes: [],
-        members: [{ name: organizerName, role: "Organizer", joinedAt: new Date().toISOString() }],
+        members: [{ name: fullName, role: "Organizer", joinedAt: new Date().toISOString() }],
         dateTime: null,
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
     };
@@ -431,8 +455,14 @@ closeDetailModal.addEventListener("click", () => closeModalFn(podDetailModal));
 closeJoinModal.addEventListener("click", () => closeModalFn(joinModal));
 
 joinSubmitBtn.addEventListener("click", async () => {
-    const name = joinNameInput.value.trim();
-    if (!name) return;
+    const aliasInput = joinNameInput.value.trim();
+    if (!aliasInput) return;
+
+    const fullName = resolveAlias(aliasInput);
+    if (!fullName) {
+        alert("Invalid alias");
+        return;
+    }
 
     const podRef = podsCollection.doc(currentPodId);
 
@@ -441,7 +471,7 @@ joinSubmitBtn.addEventListener("click", async () => {
         const podSnap = await podRef.get();
         const podData = podSnap.data();
         const currentVotes = podData.votes || [];
-        const newVotes = [...currentVotes, { name: name, votedAt: new Date().toISOString() }];
+        const newVotes = [...currentVotes, { name: fullName, votedAt: new Date().toISOString() }];
 
         if (newVotes.length >= 3) {
             // 3 votes reached — activate the pod and add all voters as members
@@ -470,7 +500,7 @@ joinSubmitBtn.addEventListener("click", async () => {
         // Already active — just add member
         await podRef.update({
             members: firebase.firestore.FieldValue.arrayUnion({
-                name: name,
+                name: fullName,
                 role: "Member",
                 joinedAt: new Date().toISOString()
             })
@@ -729,4 +759,3 @@ podsCollection
             });
         }
     });
-
