@@ -183,6 +183,23 @@ body {
     color: var(--white);
 }
 
+.page-description {
+    margin-top: 8px;
+    font-size: 0.95rem;
+    color: rgba(255, 255, 255, 0.85);
+    line-height: 1.5;
+}
+
+.page-description a.desc-link {
+    color: var(--white);
+    font-weight: 600;
+    text-decoration: underline;
+}
+
+.page-description a.desc-link:hover {
+    color: var(--accent);
+}
+
 /* ===========================
    Tiles Grid
    =========================== */
@@ -837,3 +854,4 @@ body.admin-mode .btn-tile-delete {
         gap: 10px;
     }
 }
+
