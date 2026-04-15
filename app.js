@@ -114,6 +114,13 @@ function navigateTo(pageName) {
     if (pageName === "howitworks") resizeHowItWorksBoxes();
 }
 
+document.querySelectorAll(".desc-link").forEach(link => {
+    link.addEventListener("click", (e) => {
+        e.preventDefault();
+        navigateTo(link.dataset.page);
+    });
+});
+
 function resizeHowItWorksBoxes() {
     requestAnimationFrame(() => {
         const h = document.getElementById("howItWorksText");
@@ -722,3 +729,4 @@ podsCollection
             });
         }
     });
+
