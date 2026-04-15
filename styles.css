@@ -179,6 +179,8 @@ body {
     box-shadow: var(--shadow);
     padding: 40px;
     margin-top: 24px;
+    position: relative;
+    z-index: 1;
 }
 
 .page-header {
