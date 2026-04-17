@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Care Activity Pods</title>
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
     <link rel="stylesheet" href="styles.css">
+    <script src="theme.js"></script>
 </head>
 <body>
 
@@ -26,7 +28,9 @@
             <a href="#" class="nav-link nav-link-admin" data-page="adminreview" style="display:none;">Admin Review</a>
             <a href="#" class="nav-link nav-link-admin" data-page="reporting" style="display:none;">Reporting</a>
         </nav>
+        <button class="btn-hamburger" id="hamburgerBtn" aria-label="Toggle navigation">☰</button>
         <div class="header-right">
+            <button class="btn-theme-toggle" id="themeToggle" title="Toggle dark/light mode">🌙</button>
             <button class="btn-create" id="createPodBtn">+ Create a Pod</button>
             <button class="btn-admin" id="adminLoginBtn">Admin Log In</button>
         </div>
@@ -370,6 +374,17 @@
                 <div class="admin-textbox-wrapper">
                     <textarea id="podIdeasText" class="admin-textbox" readonly placeholder="No content yet."></textarea>
                     <button class="btn-save-textbox" id="savePodIdeas" style="display:none;">Save</button>
+                </div>
+            </div>
+            <div class="about-section">
+                <h3 class="admin-textbox-label">About This Project</h3>
+                <div class="about-content">
+                    <p>Care Activity Pods is a community-driven platform that helps teams organize and join group activities — called "pods." Whether it's a hiking trip, a cooking class, or a game night, pods make it easy to find people who share your interests.</p>
+                    <p>Built with ❤️ using HTML, CSS, JavaScript, and Firebase. The space theme with floating rocket cats represents the limitless possibilities when people come together!</p>
+                    <div class="about-creator">
+                        <p><strong>Created by:</strong> Antonio Alejandro</p>
+                        <p><strong>Purpose:</strong> Helping teams build connections through shared activities</p>
+                    </div>
                 </div>
             </div>
         </div>

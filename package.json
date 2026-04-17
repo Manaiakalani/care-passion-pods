@@ -1,0 +1,26 @@
+{
+  "name": "care-passion-pods",
+  "version": "1.0.0",
+  "description": "A community platform for organizing and joining group activities (\"pods\"). Built with HTML, CSS, JavaScript, and Firebase Firestore.",
+  "main": "app.js",
+  "scripts": {
+    "test": "npx playwright test",
+    "test:screenshots": "npx playwright test tests/screenshots.spec.js",
+    "test:fit": "npx playwright test tests/fit-and-finish.spec.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AAlejandro96/care-passion-pods.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AAlejandro96/care-passion-pods/issues"
+  },
+  "homepage": "https://github.com/AAlejandro96/care-passion-pods#readme",
+  "devDependencies": {
+    "@playwright/test": "^1.59.1",
+    "serve": "^14.2.6"
+  }
+}
