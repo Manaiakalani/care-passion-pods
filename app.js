@@ -24,7 +24,7 @@ function logActivity(action, userName, podTitle) {
         userName: userName || "Unknown",
         podTitle: podTitle || "Unknown",
         timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    });
+    }).catch(err => console.warn("Activity log write failed:", err));
 }
 
 function renderActivityLog(entries) {
@@ -77,6 +77,8 @@ activityLogCollection.orderBy("timestamp", "desc").onSnapshot((snapshot) => {
     const entries = [];
     snapshot.forEach(doc => entries.push(doc.data()));
     renderActivityLog(entries);
+}, (err) => {
+    console.warn("Activity log listener error:", err);
 });
 
 // ===========================
@@ -317,11 +319,15 @@ createPodForm.addEventListener("submit", async (e) => {
         createdAt: firebase.firestore.FieldValue.serverTimestamp()
     };
 
-    await podsCollection.add(pod);
-    logActivity("proposed", fullName, activityTitle);
-
-    closeModalFn(createModal);
-    openModal(successModal);
+    try {
+        await podsCollection.add(pod);
+        logActivity("proposed", fullName, activityTitle);
+        closeModalFn(createModal);
+        openModal(successModal);
+    } catch (err) {
+        console.error("Failed to create pod:", err);
+        alert("Something went wrong while creating your pod. Please try again.");
+    }
 });
 
 // Success modal after creating pod
